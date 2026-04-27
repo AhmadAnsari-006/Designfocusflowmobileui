@@ -118,6 +118,16 @@ export function Profile({ isDark, onToggleTheme }: ProfileProps) {
           </GlassCard>
 
           <GlassCard className="!p-4" hover={false}>
+            <button
+              onClick={() => window.location.hash = '#permissions'}
+              className="w-full flex items-center gap-3"
+            >
+              <Shield className="w-5 h-5" />
+              <span>Manage Permissions</span>
+            </button>
+          </GlassCard>
+
+          <GlassCard className="!p-4" hover={false}>
             <button className="w-full flex items-center gap-3">
               <HelpCircle className="w-5 h-5" />
               <span>Help & Support</span>

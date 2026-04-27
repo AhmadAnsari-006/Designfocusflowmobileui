@@ -68,6 +68,12 @@ export function Insights() {
             <h3 className="font-semibold">Weekly Overview</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={weeklyData}>
+                <defs>
+                  <linearGradient id="insightsBarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#06b6d4" />
+                  </linearGradient>
+                </defs>
                 <XAxis
                   dataKey="day"
                   stroke="currentColor"
@@ -79,13 +85,7 @@ export function Insights() {
                   className="text-muted-foreground"
                   fontSize={12}
                 />
-                <Bar dataKey="hours" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8b5cf6" />
-                    <stop offset="100%" stopColor="#06b6d4" />
-                  </linearGradient>
-                </defs>
+                <Bar dataKey="hours" fill="url(#insightsBarGradient)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

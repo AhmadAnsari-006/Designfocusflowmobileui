@@ -41,6 +41,12 @@ export function HomeDashboard({ onStartFocus }: HomeDashboardProps) {
 
               <div className="relative w-32 h-32">
                 <svg className="w-full h-full transform -rotate-90">
+                  <defs>
+                    <linearGradient id="dashboardCircleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#8b5cf6" />
+                      <stop offset="100%" stopColor="#06b6d4" />
+                    </linearGradient>
+                  </defs>
                   <circle
                     cx="64"
                     cy="64"
@@ -54,7 +60,7 @@ export function HomeDashboard({ onStartFocus }: HomeDashboardProps) {
                     cx="64"
                     cy="64"
                     r="56"
-                    stroke="url(#gradient)"
+                    stroke="url(#dashboardCircleGradient)"
                     strokeWidth="12"
                     fill="none"
                     strokeLinecap="round"
@@ -63,12 +69,6 @@ export function HomeDashboard({ onStartFocus }: HomeDashboardProps) {
                     animate={{ strokeDashoffset: 2 * Math.PI * 56 * (1 - percentage / 100) }}
                     transition={{ duration: 1, ease: "easeOut" }}
                   />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#8b5cf6" />
-                      <stop offset="100%" stopColor="#06b6d4" />
-                    </linearGradient>
-                  </defs>
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-2xl font-bold">{Math.round(percentage)}%</span>

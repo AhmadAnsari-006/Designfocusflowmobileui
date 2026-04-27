@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SplashScreen } from "./components/splash-screen";
 import { Onboarding } from "./screens/onboarding";
+import { PermissionsSetup } from "./screens/permissions-setup";
 import { HomeDashboard } from "./screens/home-dashboard";
 import { FocusMode } from "./screens/focus-mode";
 import { Insights } from "./screens/insights";
@@ -9,11 +10,14 @@ import { Profile } from "./screens/profile";
 import { Wellness } from "./screens/wellness";
 import { AppBlocking } from "./screens/app-blocking";
 import { DesignSystem } from "./screens/design-system";
+import { PermissionsManager } from "./screens/permissions-manager";
 import { BottomNav } from "./components/bottom-nav";
+import { PermissionsProvider } from "./context/permissions-context";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [hasSetupPermissions, setHasSetupPermissions] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [isDark, setIsDark] = useState(true);
 
@@ -22,6 +26,20 @@ export default function App() {
       setIsLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Check if user has already completed onboarding and permissions
+    const onboarded = localStorage.getItem('focusflow_onboarded');
+    const permissionsSetup = localStorage.getItem('focusflow_permissions_setup');
+
+    if (onboarded === 'true') {
+      setHasCompletedOnboarding(true);
+    }
+
+    if (permissionsSetup === 'true') {
+      setHasSetupPermissions(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -67,8 +85,24 @@ export default function App() {
   if (!hasCompletedOnboarding) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-purple-950 dark:to-blue-950 transition-colors duration-500">
-        <Onboarding onComplete={() => setHasCompletedOnboarding(true)} />
+        <Onboarding onComplete={() => {
+          setHasCompletedOnboarding(true);
+          localStorage.setItem('focusflow_onboarded', 'true');
+        }} />
       </div>
+    );
+  }
+
+  if (!hasSetupPermissions) {
+    return (
+      <PermissionsProvider>
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-purple-950 dark:to-blue-950 transition-colors duration-500">
+          <PermissionsSetup onComplete={() => {
+            setHasSetupPermissions(true);
+            localStorage.setItem('focusflow_permissions_setup', 'true');
+          }} />
+        </div>
+      </PermissionsProvider>
     );
   }
 
@@ -86,6 +120,8 @@ export default function App() {
         return <Wellness />;
       case "blocking":
         return <AppBlocking />;
+      case "permissions":
+        return <PermissionsManager />;
       case "design-system":
         return <DesignSystem />;
       default:
@@ -94,45 +130,47 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-purple-950 dark:to-blue-950 transition-colors duration-500">
-      <div className="max-w-md mx-auto min-h-screen relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            {renderScreen()}
-          </motion.div>
-        </AnimatePresence>
+    <PermissionsProvider>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-purple-950 dark:to-blue-950 transition-colors duration-500">
+        <div className="max-w-md mx-auto min-h-screen relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderScreen()}
+            </motion.div>
+          </AnimatePresence>
 
-        <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+          <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
 
-        {activeTab === "design-system" && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="fixed top-4 right-4 px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-full text-sm shadow-lg z-50"
-            onClick={() => handleTabChange("home")}
-          >
-            ← Back to App
-          </motion.button>
-        )}
+          {activeTab === "design-system" && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="fixed top-4 right-4 px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-full text-sm shadow-lg z-50"
+              onClick={() => handleTabChange("home")}
+            >
+              ← Back to App
+            </motion.button>
+          )}
 
-        {activeTab === "profile" && (
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="fixed bottom-28 right-6 px-4 py-2 bg-gradient-to-r from-purple-600/80 to-cyan-600/80 backdrop-blur-xl text-white rounded-full text-xs shadow-lg z-40"
-            onClick={() => handleTabChange("design-system")}
-          >
-            🎨 Design System
-          </motion.button>
-        )}
+          {activeTab === "profile" && (
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="fixed bottom-28 right-6 px-4 py-2 bg-gradient-to-r from-purple-600/80 to-cyan-600/80 backdrop-blur-xl text-white rounded-full text-xs shadow-lg z-40"
+              onClick={() => handleTabChange("design-system")}
+            >
+              🎨 Design System
+            </motion.button>
+          )}
+        </div>
       </div>
-    </div>
+    </PermissionsProvider>
   );
 }
